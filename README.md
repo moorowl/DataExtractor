@@ -13,6 +13,7 @@ Once installed, run the game with the `-dataex` command-line arg, followed by a 
 | File name | Description/Notes
 | --- | --- |
 | `achievements` |
+| `behaviourTags` |
 | `conditionEffects` |
 | `conditions` | Status effects.
 | `contentBundles` |
@@ -26,7 +27,7 @@ Once installed, run the game with the `-dataex` command-line arg, followed by a 
 | `environmentSpawnObjects` | Natural object and creature spawns.
 | `factions` |
 | `fishing` | Fishing loot and struggle data.
-| `graphicalPrefabs` | Object graphical prefab info. Just sounds at the moment.
+| `graphicalPrefabs` | Object graphical prefab info. Just sounds and lights at the moment.
 | `instruments` |
 | `lootTables` |
 | `miscellaneous` |
@@ -42,7 +43,6 @@ Once installed, run the game with the `-dataex` command-line arg, followed by a 
 | `sfx` |
 | `skills` | Skills and their talents.
 | `souls` |
-| `spriteAssets` |
 | `text` |
 | `tiles` | `TileType`s, `Tileset`s and their properties/map colors.
 | `upgradeCosts` | Costs to upgrade items in the Upgrade Station.
