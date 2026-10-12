@@ -6,16 +6,13 @@ using System.Linq;
 using Pug.UnityExtensions;
 using Unity.Mathematics;
 using UnityEngine;
-using static CustomScenesDataTable;
 
 namespace DataExtractor.Extractors {
 	public class CustomScenes : Extractor {
 		public override string Name => "customScenes";
 
 		public override JToken Extract() {
-			var scenesDataTable = Resources.Load<CustomScenesDataTable>("Scenes/CustomScenesDataTable");
-
-			var data = scenesDataTable.scenes.Select((scene, i) => {
+			var data = ScriptableData.GetDataBlocks<CustomSceneDataBlock>().OrderBy(scene => scene.sceneName).Select(scene => {
 				var tiles = new Dictionary<TileCD, List<int2>>();
 				var boundsMax = (int2) int.MaxValue;
 				var boundsMin = (int2) int.MinValue;
@@ -47,7 +44,7 @@ namespace DataExtractor.Extractors {
 				return new {
 					InternalName = scene.sceneName,
 					MaxOccurrences = scene.maxOccurrences,
-					ReplacedByContentBundle = (ContentBundleID?) (scene.replacedByContentBundle.hasValue ? scene.replacedByContentBundle.value : null),
+					ReplacedByContentBundle = scene.replacedByContentBundle.hasValue ? scene.replacedByContentBundle.value.Get().name : null,
 					BiomesToSpawnIn = scene.biomesToSpawnIn,
 					MinDistanceFromCoreInClassicWorlds = scene.minDistanceFromCoreInClassicWorlds,
 					CanFlip = new {
@@ -56,8 +53,9 @@ namespace DataExtractor.Extractors {
 					},
 					Radius = scene.radius,
 					Center = center,
-					Objects = scene.prefabs.Select((prefab, i) => {
-						var objectInfo = prefab.GetComponent<EntityMonoBehaviourData>().objectInfo;
+					Objects = scene.authObjects.Select((entityDataBlockRef, i) => {
+						var prefab = entityDataBlockRef.Get()?.prefab;
+						var objectInfo = prefab.GetComponent<IEntityMonoBehaviourData>().ObjectInfo;
 
 						if (objectInfo.isCustomScenePrefab || prefab.GetComponent<CustomScenePrefabAuthoring>() != null) {
 							return new {
@@ -71,7 +69,9 @@ namespace DataExtractor.Extractors {
 							Id = objectInfo.objectID,
 							Variation = objectInfo.variation,
 							Position = scene.prefabPositions[i],
-							InventoryOverrides = MapInventoryOverride(scene.prefabInventoryOverrides[i])
+							InventoryOverrides = MapInventoryOverride(scene.prefabInventoryOverrides[i]),
+							Color = (PaintableColor?) (scene.prefabColors[i].hasValue ? scene.prefabColors[i].value : null),
+							Direction = (int3?) (scene.prefabDirections[i].hasValue ? (int3) scene.prefabDirections[i].value : null)
 						};
 
 						// need this to make the compiler happy for some reason
@@ -88,20 +88,21 @@ namespace DataExtractor.Extractors {
 			return Serialize(data);
 		}
 
-		private static object MapInventoryOverride(InventoryOverride inventoryOverride) {
+		private static object MapInventoryOverride(CustomSceneDataBlock.InventoryOverride inventoryOverride) {
 			if (!inventoryOverride.hasAnyInventoryOverride)
 				return null;
 
 			return new {
 				LootTable = (LootTableID?) (inventoryOverride.hasLootTableOverride ? inventoryOverride.lootTableOverride : null),
 				Items = inventoryOverride.hasItemsOverride
-					? inventoryOverride.itemsOverride.Select(item => new {
-						Id = item.objectID,
-						Variation = item.variation,
-						Amount = item.amount,
+					? inventoryOverride.itemsOverride.Select(inventoryItem => new {
+						Id = inventoryItem.item.objectID,
+						Variation = inventoryItem.item.variation,
+						Amount = inventoryItem.item.amount,
+						RequiredContentBundle = inventoryItem.requiredContentBundle.hasValue ? ContentBundleDataBlock.GetBundleName(inventoryItem.requiredContentBundle.value) : null,
 					})
 					: null,
-				ExistingItemsToRemove = (int?) (inventoryOverride.hasItemsOverride ? inventoryOverride.itemsToRemove : null)
+				ExistingItemsToRemove = (int?) (inventoryOverride.hasItemsOverride ? inventoryOverride.itemsToRemove : null),
 			};
 		}
 	}

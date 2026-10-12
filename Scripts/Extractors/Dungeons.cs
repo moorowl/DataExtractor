@@ -22,16 +22,19 @@ namespace DataExtractor.Extractors {
 
 			var data = new {
 				Unique = worldGenAuthorings.Select(authoring => {
-					var markerData = authoring.markerPrefab?.GetComponent<EntityMonoBehaviourData>()?.objectInfo;
+					var markerData = authoring.markerPrefabRef.Get()?.prefab?.GetComponent<IEntityMonoBehaviourData>()?.ObjectInfo;
 
 					return new {
 						InternalName = authoring.name,
-						ContentBundle = authoring.contentBundle,
+						ContentBundle = authoring.contentBundle.Get()?.name,
+						ReplacedByContentBundle = authoring.replacedByBundle.hasValue ? authoring.replacedByBundle.value.Get().name : null,
 						SpawnImmediatelyOnLoad = authoring.spawnImmediatelyOnLoad,
 						PlacementType = authoring.placementType,
+						PositionSampling = authoring.positionSampling,
 						Position = (WorldGenerationTypeDependentValue<int2>?) (authoring.placementType == UniqueScenePlacementType.ExactPosition ? authoring.spawnPosition : null),
 						BiomeToSpawnIn = (WorldGenerationTypeDependentValue<Biome>?) ((authoring.placementType == UniqueScenePlacementType.AnywhereInBiome || authoring.placementType == UniqueScenePlacementType.DistanceFromCoreInBiome) ? authoring.biome : null),
 						TargetDistanceFromCore = (WorldGenerationTypeDependentValue<int>?) (authoring.placementType == UniqueScenePlacementType.DistanceFromCoreInBiome ? authoring.targetDistanceFromCore : null),
+						AllowOverlappingSpawnCellBorders = authoring.allowOverlappingSpawnCellBorders,
 						Marker = markerData != null
 							? new { Id = markerData.objectID, Variation = markerData.variation }
 							: null,
@@ -121,9 +124,9 @@ namespace DataExtractor.Extractors {
 				CustomScenes = dungeonCustomScenesAuthoring?.groups?.Select(group => new {
 					RoomType = group.roomType,
 					NumberToSpawn = group.numberToSpawn,
-					Scenes = group.scenes.Select(scene => SceneReferenceToName(scene.scene)),
+					Scenes = group.scenes.Select(SceneReferenceToName),
 				}),
-				CustomScene = dungeonSingleCustomSceneAuthoring != null ? SceneReferenceToName(dungeonSingleCustomSceneAuthoring.scene) : null,
+				CustomScene = dungeonSingleCustomSceneAuthoring != null ? SceneReferenceToName(dungeonSingleCustomSceneAuthoring.sceneDataBlock) : null,
 				ObjectReplacements = dungeonReplaceObjectsAuthoring?.replacements?.Select(replacement => {
 					var variations = new List<ValueWithWeight<int>>();
 
@@ -135,8 +138,10 @@ namespace DataExtractor.Extractors {
 					}
 					
 					return new {
-						SourceId = replacement.replaceID,
-						TargetId = replacement.replaceID,
+						Replacements = replacement.replacementObjectIDs.Select(replacementObjectID => new {
+							SourceId = replacementObjectID.replaceID,
+							TargetId = replacementObjectID.replaceWithID,
+						}),
 						TargetVariation = variations.Select(variation => new {
 							Variation = variation.value,
 							Weight = variation.weight
@@ -200,14 +205,8 @@ namespace DataExtractor.Extractors {
 			};
 		}
 
-		private static string SceneReferenceToName(SceneReference reference) {
-			var path = reference.ScenePath;
-			var a = path.LastIndexOf('/') + 1;
-			var b = path.LastIndexOf('.');
-			if (b < 0)
-				b = path.Length;
-
-			return path.Substring(a, b - a);
+		private static string SceneReferenceToName(DataBlockRef<CustomSceneDataBlock> scene) {
+			return scene.Get()?.name ?? scene.address.ToString();
 		}
 	}
 }

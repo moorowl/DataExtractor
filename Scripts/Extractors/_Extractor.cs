@@ -3,6 +3,7 @@ using DataExtractor.DataStructures.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using RayAttackState;
 using Unity.Physics.Authoring;
 using UnityEngine;
 
@@ -24,6 +25,8 @@ namespace DataExtractor.Extractors {
 				new GameObjectToNameConverter(),
 				new UnityObjectToNameConverter<Sprite>(),
 				new SfxTableIdConverter(),
+				new DataBlockAddressConverter(),
+				new DataBlockRefConverter(),
 				new PhysicsCategoryTagsConverter(),
 				new EnumFlagsConverter()
 			}
@@ -41,6 +44,8 @@ namespace DataExtractor.Extractors {
 				new GameObjectToNameConverter(),
 				new UnityObjectToNameConverter<Sprite>(),
 				new SfxTableIdConverter(),
+				new DataBlockAddressConverter(),
+				new DataBlockRefConverter(),
 				new PhysicsCategoryTagsConverter(),
 				new EnumFlagsConverter(),
 				new IncludeCraftedObjectsConverter()
@@ -74,6 +79,8 @@ namespace DataExtractor.Extractors {
 			resolver.IgnoreProperty<ExplosiveAuthoring>("level");
 			resolver.IgnoreProperty<AttackContinuouslyAuthoring>("level");
 			resolver.IgnoreProperty<GiantCicadaBossAuthoring>("level");
+			resolver.IgnoreProperty<BehaviourAuthoring>("level");
+			resolver.IgnoreProperty<RayAttackStateAuthoring>("level");
 			resolver.IgnoreProperty<OffHandAuthoring>("level", "entityMono", "cooldown");
 			resolver.IgnoreProperty<ScarabBossAuthoring>("level");
 			resolver.IgnoreProperty<SupportsConditionsAuthoring>("level", "conditionsTable");
@@ -82,10 +89,11 @@ namespace DataExtractor.Extractors {
 			resolver.IgnoreProperty<PetWalkStateAuthoring>("belongsToShape");
 			resolver.IgnoreProperty<ChaseStateAuthoring>("belongsToShape");
 			resolver.IgnoreProperty<WeaponDamageAuthoring>("level", "entityMono", "cooldown");
-			resolver.IgnoreProperty<ObjectInfo>("objectID", "variation", "variationIsDynamic", "level", "onlyExistsInSeason", "iconSkinAsset", "additionalSprites", "tileset", "tileType", "prefabInfos", "isCustomScenePrefab", "languageGenders");
+			resolver.IgnoreProperty<ObjectInfo>("objectID", "variation", "variationIsDynamic", "level", "onlyExistsInSeason", "iconSkinAsset", "iconSkinAssetRef", "additionalSprites", "tileset", "tileType", "prefabInfo", "prefabInfos", "isCustomScenePrefab", "languageGenders");
 			resolver.IgnoreProperty<EntityMonoBehaviourData>("objectInfo", "optionalPreviewPrefab");
 			resolver.IgnoreProperty<ConsumesManaAuthoring>("levelAuthoring", "cooldownAuth", "weaponDamage", "secondaryUse");
 			resolver.IgnoreProperty<DurabilityAuthoring>("entityMono");
+			resolver.IgnoreProperty<BehaviourTagsAuthoring>("wantsToAttackTags", "cantAttackTags", "eatsTags");
 		}
 
 		protected JToken Serialize(object value, JsonSerializerSettings settings = null) {

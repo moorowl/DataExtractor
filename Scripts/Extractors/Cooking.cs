@@ -10,8 +10,8 @@ namespace DataExtractor.Extractors {
 		public override string Name => "cooking";
 
 		public override JToken Extract() {
-			var objects = Manager.ecs.pugDatabase.prefabList
-				.Select(prefab => new ObjectDataFromPrefab(prefab.gameObject))
+			var objects = ScriptableData.GetDataBlocks<EntityAuthoringDataBlock>()
+				.Select(dataBlock => new ObjectDataFromPrefab(dataBlock))
 				.GroupBy(x => x.ObjectInfo.objectID)
 				.Select(x => x.First())
 				.ToDictionary(x => x.ObjectInfo.objectID, x => x);

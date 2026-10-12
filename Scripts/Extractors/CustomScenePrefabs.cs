@@ -1,4 +1,5 @@
-﻿using DataExtractor.DataStructures;
+﻿using System.Collections.Generic;
+using DataExtractor.DataStructures;
 using DataExtractor.Utilities;
 using Newtonsoft.Json.Linq;
 using System.Linq;
@@ -9,11 +10,10 @@ namespace DataExtractor.Extractors {
 		public override string Name => "customScenePrefabs";
 
 		public override JToken Extract() {
-			var prefabs = Manager.ecs.pugDatabase.prefabList;
-			var objects = prefabs.Select(prefab => new ObjectDataFromPrefab(prefab.gameObject))
-				.OrderBy(data => data.SortKey);
-
-			var scenesDataTable = Resources.Load<CustomScenesDataTable>("Scenes/CustomScenesDataTable");
+			var objects = ScriptableData.GetDataBlocks<EntityAuthoringDataBlock>()
+				.Select(dataBlock => new ObjectDataFromPrefab(dataBlock))
+				.OrderBy(data => data.SortKey)
+				.ToList();
 
 			var baseObjects = objects
 				.Where(data => !data.HasComponent<CustomScenePrefabAuthoring>())
@@ -32,19 +32,19 @@ namespace DataExtractor.Extractors {
 				})
 				.ToDictionary(entry => entry.objectData, entry => entry.serializedComponents);
 
-			var customScenePrefabs = scenesDataTable.scenes.SelectMany(scene => scene.prefabs)
-				.Select(prefab => new ObjectDataFromPrefab(prefab))
+			var customScenePrefabs = ScriptableData.GetDataBlocks<CustomSceneDataBlock>().SelectMany(scene => scene.authObjects)
+				.Select(entityRef => new ObjectDataFromPrefab(entityRef.Get()))
 				.Where(data => data.HasComponent<CustomScenePrefabAuthoring>())
-				.GroupBy(data => Utils.GetUniqueScenePrefabName(data.Prefab))
+				.GroupBy(data => Utils.GetUniqueScenePrefabName(data.Authoring))
 				.Select(group => group.First())
 				.OrderBy(data => data.SortKey)
 				.Select(data => {
-					var baseObjectData = new ObjectDataCD {
+					var baseSerializedComponents = baseObjects.GetValueOrDefault(new ObjectDataCD {
 						objectID = data.ObjectInfo.objectID,
 						variation = data.ObjectInfo.variation
-					};
-
-					var baseSerializedComponents = baseObjects[baseObjectData];
+					}) ?? baseObjects.GetValueOrDefault(new ObjectDataCD {
+						objectID = data.ObjectInfo.objectID
+					});
 					var serializedComponents = data.Components.OrderBy(entry => entry.Key.Name)
 						.ToDictionary(entry => entry.Key.Name, entry => Serialize(entry.Value, DefaultSettingsForObjects) as JObject);
 
@@ -53,7 +53,7 @@ namespace DataExtractor.Extractors {
 						.ToDictionary(x => x.Key, x => x.Value);
 
 					return new {
-						AuthoringPrefabName = Utils.GetUniqueScenePrefabName(data.Prefab),
+						AuthoringPrefabName = Utils.GetUniqueScenePrefabName(data.Authoring),
 						Object = new {
 							Id = data.ObjectInfo.objectID,
 							Variation = data.ObjectInfo.variation

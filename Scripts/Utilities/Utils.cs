@@ -102,13 +102,12 @@ namespace DataExtractor.Utilities {
 		}
 
 		private static readonly Lazy<Dictionary<int, string>> ScenePrefabNames = new(() => {
-			var scenesDataTable = Resources.Load<CustomScenesDataTable>("Scenes/CustomScenesDataTable");
 			var allPrefabs = new List<(GameObject Prefab, string Scene, int IndexInScene)>();
 
-			foreach (var scene in scenesDataTable.scenes) {
-				for (var i = 0; i < scene.prefabs.Count; i++) {
-					var prefab = scene.prefabs[i];
-					allPrefabs.Add((prefab, scene.sceneName, i));
+			foreach (var sceneDataBlock in ScriptableData.GetDataBlocks<CustomSceneDataBlock>()) {
+				for (var i = 0; i < sceneDataBlock.authObjects.Count; i++) {
+					var entityAuthoringDataBlock = sceneDataBlock.authObjects[i].Get();
+					allPrefabs.Add((entityAuthoringDataBlock.prefab, sceneDataBlock.sceneName, i));
 				}
 			}
 			allPrefabs.Sort((x, y) => x.Prefab.GetInstanceID().CompareTo(y.Prefab.GetInstanceID()));
@@ -133,10 +132,11 @@ namespace DataExtractor.Utilities {
 		});
 
 		public static string GetUniqueScenePrefabName(GameObject prefab) {
-			if (ScenePrefabNames.Value.TryGetValue(prefab.GetInstanceID(), out var name))
+			/*if (ScenePrefabNames.Value.TryGetValue(prefab.GetInstanceID(), out var name))
 				return name;
 
-			return $"{prefab.name}/{prefab.GetInstanceID()}";
+			return $"{prefab.name}/{prefab.GetInstanceID()}";*/
+			return prefab.name;
 		}
 	}
 }

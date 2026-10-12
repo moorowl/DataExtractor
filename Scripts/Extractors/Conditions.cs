@@ -59,6 +59,7 @@ namespace DataExtractor.Extractors {
 					IsNegative = condition.isNegative,
 					IsUnique = condition.isUnique,
 					IsInheritedByProjectiles = condition.isInheritedByProjectiles,
+					OverrideIfRemainingValueIsHigher = condition.overrideIfRemainingValueIsHigher,
 					ShowDecimal = condition.showDecimal,
 					SkipShowingSignInfrontOfValue = condition.skipShowingSignInfrontOfValue,
 					SkipShowingStatText = condition.skipShowingStatText

@@ -12,8 +12,10 @@ namespace DataExtractor.Extractors {
 		public override string Name => "objects";
 
 		public override JToken Extract() {
-			var prefabs = Manager.ecs.pugDatabase.prefabList;
-			var objects = prefabs.Select(prefab => new ObjectDataFromPrefab(prefab.gameObject)).OrderBy(data => data.SortKey);
+			var objects = ScriptableData.GetDataBlocks<EntityAuthoringDataBlock>()
+				.Select(dataBlock => new ObjectDataFromPrefab(dataBlock))
+				.OrderBy(data => data.SortKey)
+				.ToList();
 
 			var objectsLookup = objects.GroupBy(data => data.ObjectInfo.objectID).Select(group => group.First()).ToDictionary(data => data.ObjectInfo.objectID, data => data);
 
@@ -101,9 +103,10 @@ namespace DataExtractor.Extractors {
 
 					return new {
 						Id = (int) objectData.objectID,
+						Guid = data.AuthoringAddress.ToString(),
 						InternalName = objectData.objectID,
-						AuthoringPrefabName = data.Prefab.name,
-						GraphicalPrefabName = objectInfo.prefabInfos[0].prefab?.name,
+						AuthoringPrefabName = data.Authoring.name,
+						GraphicalPrefabName = objectInfo.prefabInfo.GetGraphical()?.name,
 						Variation = objectData.variation,
 						DisplayName = Utils.GetObjectNames(objectData.objectID, objectData.variation),
 						Description = Utils.GetObjectDescriptions(objectData.objectID, objectData.variation),
@@ -215,7 +218,7 @@ namespace DataExtractor.Extractors {
 			var windupDamageMultiplier = hasExplosiveProjectileWithWindup ? 0.3f : 1f;
 
 			upgradedDamage = (int) Math.Round(ExplosiveAuthoring.LevelToExplosionDamage(level, damageMultiplier) * windupDamageMultiplier);
-			upgradedMiningDamage = (int) Math.Round(ExplosiveAuthoring.LevelToMiningDamage(level, miningDamageMultiplier, isEnemyOrProjectile: false) * windupDamageMultiplier);
+			upgradedMiningDamage = (int) Math.Round(ExplosiveAuthoring.LevelToMiningDamage(level, miningDamageMultiplier, false) * windupDamageMultiplier);
 
 			return true;
 		}

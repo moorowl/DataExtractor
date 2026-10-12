@@ -31,8 +31,11 @@ namespace DataExtractor.DataStructures.Converters {
 								flags.Add(Enum.GetName(underlyingType, enumValue));
 							}
 						}
-					} else if (Enum.TryParse(underlyingType, flags[0], out var parsedValue) && (int) parsedValue == 0) {
-						flags.Clear();
+					} else if (Enum.TryParse(underlyingType, flags[0], out var parsedValue)) {
+						try {
+							if ((int) parsedValue == 0)
+								flags.Clear();
+						} catch { }
 					}
 				}
 

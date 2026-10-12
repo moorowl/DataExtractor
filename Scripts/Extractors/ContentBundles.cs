@@ -1,25 +1,26 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Linq;
 using DataExtractor.Utilities;
-using UnityEngine;
 
 namespace DataExtractor.Extractors {
 	public class ContentBundles : Extractor {
 		public override string Name => "contentBundles";
 
 		public override JToken Extract() {
-			var contentBundlesTable = Resources.Load<ContentBundleTable>("ContentBundleTable");
+			var contentBundles = ScriptableData.GetDataBlocks<ContentBundleDataBlock>();
 
-			var data = contentBundlesTable.contentBundles.OrderBy(contentBundle => (int) contentBundle.id)
+			var data = contentBundles.OrderBy(contentBundle => contentBundle.name)
 				.Select(contentBundle => new {
-					Id = (int) contentBundle.id,
-					InternalName = contentBundle.id,
-					DisplayName = Utils.GetTranslations($"Menu/ContentBundle{contentBundle.id}Title"),
-					Description = Utils.GetTranslations($"Menu/ContentBundle{contentBundle.id}Desc"),
+					Guid = contentBundle.address.guid,
+					InternalName = contentBundle.name,
+					DisplayName = Utils.GetTranslations($"ContentBundles/{contentBundle.name}"),
+					Description = Utils.GetTranslations($"ContentBundles/{contentBundle.name}Desc"),
+					CreatedForVersion = contentBundle.createdForVersion,
 					CanBeActivatedByPlayer = contentBundle.canBeActivatedByPlayer,
+					DisplayOrder = (int?) (contentBundle.canBeActivatedByPlayer ? contentBundle.displayOrder : null),
 					AutomaticallyAddedToNewWorlds = contentBundle.automaticallyAddedToNewWorlds,
-					AnabledIfSeedContainsString = contentBundle.enabledIfSeedContainsString.hasValue ? contentBundle.enabledIfSeedContainsString.value : null,
-					Dependencies = contentBundle.dependencies
+					EnabledIfSeedContainsString = contentBundle.enabledIfSeedContainsString.hasValue ? contentBundle.enabledIfSeedContainsString.value : null,
+					Dependencies = contentBundle.dependencies.Select(contentBundleRef => contentBundleRef.Get().name).ToList()
 				});
 
 			return Serialize(data);

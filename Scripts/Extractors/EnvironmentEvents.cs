@@ -23,6 +23,12 @@ namespace DataExtractor.Extractors {
 							MinAmountOfTiles = tileRequirement.minimumAmountOfTiles
 						}),
 						MinTotalTilesFulfillingRequirements = requirements.minTotalTilesFulfillingRequirements,
+						IgnoreGlobalEventCooldown = requirements.ignoreGlobalEventCooldown,
+						EventSpecificCooldownOverride = requirements.overrideEventSpecificCooldown ? new {
+							Min = requirements.minMaxEventSpecificCooldownSeconds.x,
+							Max = requirements.minMaxEventSpecificCooldownSeconds.y
+						} : null,
+						AllowSpawningNearBosses = requirements.allowSpawningNearBosses
 					};
 				});
 

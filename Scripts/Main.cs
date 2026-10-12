@@ -76,13 +76,13 @@ namespace DataExtractor {
 			File.WriteAllText(path, writer.ToString());
 		}
 
-		private static IEnumerable<Extractor> GetExtractors() {
-			var type = typeof(Extractor);
+		private static IEnumerable<DataExtractor.Extractors.Extractor> GetExtractors() {
+			var type = typeof(DataExtractor.Extractors.Extractor);
 			var types = type.Assembly.GetTypes()
 				.Where(t => t.IsClass && !t.IsAbstract && type.IsAssignableFrom(t))
 				.ToList();
 
-			return types.Select(t => (Extractor) Activator.CreateInstance(t));
+			return types.Select(t => (DataExtractor.Extractors.Extractor) Activator.CreateInstance(t));
 		}
 	}
 }

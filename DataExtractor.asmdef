@@ -63,7 +63,10 @@
         "PugWorldGen.CustomScenes.dll",
         "Pugstorm.WorldGen.dll",
         "WorldGen.dll",
-        "WorldGen.Runtime.dll"
+        "WorldGen.Runtime.dll",
+        "PugSprite.dll",
+        "ScriptableData.dll",
+        "RayAttackState.Authoring.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [],

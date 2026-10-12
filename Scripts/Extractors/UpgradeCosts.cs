@@ -8,14 +8,12 @@ namespace DataExtractor.Extractors {
 		public override JToken Extract() {
 			var upgradeCostsAuthoring = Manager.ecs.serverAuthoringPrefab.GetComponentInChildren<UpgradeCostsTableAuthoring>();
 
-			var data = upgradeCostsAuthoring.upgradeCostsTable.upgradeCosts.Select((costs, index) => {
+			var data = UpgradeCostsTable.GetTable().upgradeCosts.Select((costs, index) => {
 				return new {
 					Level = index,
-					Materials = costs.upgradeCost.Select(upgradeCost => {
-						return new {
-							Id = upgradeCost.item,
-							Amount = upgradeCost.amount
-						};
+					Materials = costs.upgradeCost.Select(upgradeCost => new {
+						Id = upgradeCost.item,
+						Amount = upgradeCost.amount
 					})
 				};
 			});

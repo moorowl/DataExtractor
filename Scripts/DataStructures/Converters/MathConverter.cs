@@ -16,6 +16,8 @@ namespace DataExtractor.DataStructures.Converters {
 			typeof(Vector3Int),
 			typeof(int2),
 			typeof(int2?),
+			typeof(int3),
+			typeof(int3?),
 			typeof(float2),
 			typeof(float2?),
 			typeof(float3),
@@ -49,6 +51,11 @@ namespace DataExtractor.DataStructures.Converters {
 				int2 vector => new JObject(
 					new JProperty("x", vector.x),
 					new JProperty("y", vector.y)
+				),
+				int3 vector => new JObject(
+					new JProperty("x", vector.x),
+					new JProperty("y", vector.y),
+					new JProperty("z", vector.z)
 				),
 				float2 vector => new JObject(
 					new JProperty("x", vector.x),

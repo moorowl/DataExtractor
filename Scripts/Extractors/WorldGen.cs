@@ -33,6 +33,7 @@ namespace DataExtractor.Extractors {
 							Chaos = defaultParameters.ring4Chaos
 						}
 					},
+					NorthBlobRadius = defaultParameters.northBlobRadius,
 					Biomes = new {
 						Dirt = MapBiomeParameters(defaultParameters.dirt),
 						Clay = MapBiomeParameters(defaultParameters.clay),
@@ -42,6 +43,7 @@ namespace DataExtractor.Extractors {
 						Desert = MapBiomeParameters(defaultParameters.desert),
 						Crystal = MapBiomeParameters(defaultParameters.crystal),
 						Passage = MapBiomeParameters(defaultParameters.passage),
+						Excavation = MapBiomeParameters(defaultParameters.excavation)
 					}
 				},
 				TileTypeMapping = new {
@@ -55,6 +57,7 @@ namespace DataExtractor.Extractors {
 							PugWorldGen.CoreKeeper.Biome.Desert => Biome.Desert,
 							PugWorldGen.CoreKeeper.Biome.Crystal => Biome.Crystal,
 							PugWorldGen.CoreKeeper.Biome.Passage => Biome.Passage,
+							PugWorldGen.CoreKeeper.Biome.Excavation => Biome.Excavation,
 							_ => Biome.None,
 						},
 						ProceduralTileType = rule.proceduralTileType,

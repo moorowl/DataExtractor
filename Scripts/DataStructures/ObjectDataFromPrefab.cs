@@ -5,18 +5,22 @@ using UnityEngine;
 
 namespace DataExtractor.DataStructures {
 	public class ObjectDataFromPrefab {
-		public GameObject Prefab { get; private set; }
+		public GameObject Authoring { get; private set; }
+		public DataBlockAddress AuthoringAddress { get; private set; }
 		public ObjectInfo ObjectInfo { get; private set; }
 		public Dictionary<Type, MonoBehaviour> Components { get; private set; }
 
 		public int SortKey => (int) ObjectInfo.objectID * 10000 + ObjectInfo.variation;
 
-		public ObjectDataFromPrefab(GameObject gameObject) {
-			Prefab = gameObject;
-			ObjectInfo = GetEntityMonoBehaviourData(gameObject).ObjectInfo;
-			Components = GetAuthoringComponents(gameObject);
+		public ObjectDataFromPrefab(EntityAuthoringDataBlock dataBlock) {
+			var prefab = dataBlock.prefab;
+			
+			Authoring = prefab;
+			AuthoringAddress = dataBlock.address;
+			ObjectInfo = GetEntityMonoBehaviourData(prefab).ObjectInfo;
+			Components = GetAuthoringComponents(prefab);
 		}
-
+		
 		public bool HasComponent<T>() where T : MonoBehaviour {
 			return Components.ContainsKey(typeof(T));
 		}

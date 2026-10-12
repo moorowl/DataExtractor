@@ -37,7 +37,7 @@ namespace DataExtractor.Extractors {
 				}),
 				Skins = petsTable.petSkins.Select(info => new {
 					Pet = info.petId,
-					Palettes = info.skins.Select(skin => skin.primaryGradientMap?.name)
+					Palettes = info.skins.Select(skin => skin.gradientMapRef.Get()?.name ?? skin.gradientMapRef.address.ToString())
 				})
 			};
 
